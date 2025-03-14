@@ -17,7 +17,7 @@ A web-based tool for creating and editing colormaps, designed for use as an inte
 
 ### Accessing the Tool
 
-This tool is hosted on GitHub Pages at: [https://your-username.github.io/colormap-creator/](https://your-username.github.io/colormap-creator/)
+This tool is hosted on GitHub Pages at: [https://isheikh8492.github.io/colormap-creator/](https://isheikh8492.github.io/colormap-creator/)
 
 ### Creating a Colormap
 
@@ -88,8 +88,6 @@ This application is designed to be deployed on GitHub Pages:
 1. Push the code to a GitHub repository
 2. Enable GitHub Pages in the repository settings
 3. Set the source to the branch containing your code
-
-The application will be available at `https://[username].github.io/[repo-name]/`.
 
 ## License
 

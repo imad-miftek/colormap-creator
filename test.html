@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Colormap Creator Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .colormap-container {
+            width: 100%;
+            max-width: 600px;
+            height: 60px;
+            border: 1px solid #ddd;
+            margin-bottom: 20px;
+        }
+        #colormap-canvas {
+            width: 100%;
+            height: 100%;
+        }
+        .controls {
+            margin-top: 20px;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jscolor/2.4.5/jscolor.min.js"></script>
+</head>
+<body>
+    <h1>Colormap Creator Test</h1>
+    <p>This is a simple test page to verify that the colormap functionality is working correctly.</p>
+    
+    <div class="colormap-container">
+        <canvas id="colormap-canvas"></canvas>
+    </div>
+    
+    <div class="controls">
+        <button id="add-stop-btn">Add Random Stop</button>
+        <button id="log-stops-btn">Log Color Stops</button>
+    </div>
+    
+    <div id="output" style="margin-top: 20px; white-space: pre-wrap; font-family: monospace;"></div>
+    
+    <script>
+        class SimpleColormap {
+            constructor() {
+                this.colorStops = [];
+                this.canvas = null;
+                this.ctx = null;
+            }
+            
+            initialize(canvasId) {
+                this.canvas = document.getElementById(canvasId);
+                this.ctx = this.canvas.getContext('2d');
+                
+                // Set canvas dimensions
+                this.canvas.width = this.canvas.offsetWidth;
+                this.canvas.height = this.canvas.offsetHeight;
+                
+                // Default stops
+                this.colorStops = [
+                    { position: 0, color: '#000000' },
+                    { position: 1, color: '#ffffff' }
+                ];
+                
+                this.render();
+                return this;
+            }
+            
+            render() {
+                const width = this.canvas.width;
+                const height = this.canvas.height;
+                
+                // Clear canvas
+                this.ctx.clearRect(0, 0, width, height);
+                
+                // Sort stops
+                this.colorStops.sort((a, b) => a.position - b.position);
+                
+                // Create gradient
+                const gradient = this.ctx.createLinearGradient(0, 0, width, 0);
+                
+                // Add color stops
+                for (const stop of this.colorStops) {
+                    gradient.addColorStop(stop.position, stop.color);
+                }
+                
+                // Fill with gradient
+                this.ctx.fillStyle = gradient;
+                this.ctx.fillRect(0, 0, width, height);
+            }
+            
+            addColorStop(position, color) {
+                this.colorStops.push({ position, color });
+                this.render();
+                return true;
+            }
+            
+            // Generate random hex color
+            static randomColor() {
+                return '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize colormap
+            const colormap = new SimpleColormap().initialize('colormap-canvas');
+            const output = document.getElementById('output');
+            
+            // Button events
+            document.getElementById('add-stop-btn').addEventListener('click', function() {
+                // Add random stop between 0 and 1
+                const position = Math.random();
+                const color = SimpleColormap.randomColor();
+                
+                colormap.addColorStop(position, color);
+                output.textContent = `Added stop at position ${position.toFixed(4)} with color ${color}`;
+            });
+            
+            document.getElementById('log-stops-btn').addEventListener('click', function() {
+                // Log current stops
+                output.textContent = JSON.stringify(colormap.colorStops, null, 2);
+            });
+        });
+    </script>
+</body>
+</html> 

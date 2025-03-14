@@ -61,6 +61,15 @@
                 </table>
             </div>
         </div>
+
+        <div id="debug-log" style="margin-top: 20px; border-top: 1px solid #ddd; padding-top: 10px;">
+            <h3>Debug Information</h3>
+            <p>If you're experiencing issues:</p>
+            <ol>
+                <li>Open your browser's developer console (F12 or right-click > Inspect > Console)</li>
+                <li>Check for any error messages</li>
+            </ol>
+        </div>
     </div>
 
     <!-- Templates -->
@@ -88,7 +97,7 @@
             </div>
             <div class="form-group" id="color-picker-container">
                 <label for="color-picker">Color:</label>
-                <input type="text" id="color-picker" data-jscolor="{closeButton:true, closeText:'OK'}">
+                <input type="text" id="color-picker" value="#FFFFFF" class="jscolor">
             </div>
             <div class="button-group">
                 <button id="add-stop-confirm">Add</button>

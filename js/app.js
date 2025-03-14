@@ -84,9 +84,40 @@ document.addEventListener('DOMContentLoaded', function() {
                 stopElement.draggable = true;
                 
                 stopElement.addEventListener('dragstart', function(e) {
-                    e.dataTransfer.setData('text/plain', index);
+                    e.dataTransfer.setData('text/plain', index.toString()); // Convert index to string
                     colormap.selectedStopIndex = index;
                     renderColorStops();
+                });
+                
+                // Add mouse down event for manual dragging (more reliable than HTML5 drag)
+                stopElement.addEventListener('mousedown', function(e) {
+                    if (e.button !== 0) return; // Only left mouse button
+                    e.preventDefault();
+                    
+                    const startX = e.clientX;
+                    const startLeft = stop.position;
+                    colormap.selectedStopIndex = index;
+                    renderColorStops();
+                    
+                    function handleMouseMove(moveEvent) {
+                        const rect = colorStopsContainer.getBoundingClientRect();
+                        const deltaX = moveEvent.clientX - startX;
+                        const newPosition = startLeft + (deltaX / rect.width);
+                        
+                        // Update position
+                        if (newPosition >= 0 && newPosition <= 1) {
+                            colormap.updateColorStop(index, newPosition);
+                            updateUI();
+                        }
+                    }
+                    
+                    function handleMouseUp() {
+                        document.removeEventListener('mousemove', handleMouseMove);
+                        document.removeEventListener('mouseup', handleMouseUp);
+                    }
+                    
+                    document.addEventListener('mousemove', handleMouseMove);
+                    document.addEventListener('mouseup', handleMouseUp);
                 });
                 
                 // Right-click for context menu
@@ -244,10 +275,15 @@ document.addEventListener('DOMContentLoaded', function() {
         // Get interpolated color at that position
         const color = colormap.getColorAt(position);
         
+        console.log('Attempting to add color stop at position:', position, 'with color:', color);
+        
         // Add color stop if valid position
         if (position >= 0 && position <= 1) {
             if (colormap.addColorStop(position, color)) {
+                console.log('Color stop added successfully');
                 updateUI();
+            } else {
+                console.log('Failed to add color stop');
             }
         }
     });
@@ -265,6 +301,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const rect = colorStopsContainer.getBoundingClientRect();
         const position = (e.clientX - rect.left) / rect.width;
         
+        console.log('Drop event - Moving stop index:', index, 'to position:', position);
+        
         // Update the stop position
         if (position >= 0 && position <= 1) {
             colormap.updateColorStop(index, position);
@@ -281,13 +319,22 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Initialize color picker
         if (!colorPicker.jscolor) {
+            // Initialize JSColor picker
             jscolor.install();
+            new jscolor(colorPicker);
         }
-        colorPicker.jscolor.fromString('FFFFFF');
+        
+        if (colorPicker.jscolor) {
+            colorPicker.jscolor.fromString('FFFFFF');
+        }
         
         // Show modal
         addStopModal.style.display = 'block';
     });
+    
+    // Initialize the color picker
+    jscolor.install();
+    new jscolor(colorPicker);
     
     // Color method change
     colorMethodSelect.addEventListener('change', function() {
@@ -299,13 +346,22 @@ document.addEventListener('DOMContentLoaded', function() {
         const position = parseFloat(positionInput.value);
         let color;
         
+        console.log('Add stop button clicked - Position:', position);
+        
         if (colorMethodSelect.value === 'choose') {
-            color = '#' + colorPicker.jscolor.toString();
+            if (colorPicker.jscolor) {
+                color = '#' + colorPicker.jscolor.toString();
+            } else {
+                color = colorPicker.value; // Fallback to input value
+            }
         } else {
             color = colormap.getColorAt(position);
         }
         
+        console.log('Adding color stop with color:', color);
+        
         if (colormap.addColorStop(position, color)) {
+            console.log('Color stop added via modal');
             updateUI();
             addStopModal.style.display = 'none';
         } else {
@@ -465,6 +521,9 @@ document.addEventListener('DOMContentLoaded', function() {
         colormap.canvas.height = colormap.canvas.offsetHeight;
         colormap.render();
     });
+    
+    // Log initial state
+    console.log('Initial colormap state:', colormap.colorStops);
     
     // Initialize UI
     createContextMenu();

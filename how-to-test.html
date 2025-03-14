@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Test the Colormap Creator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+        }
+        .test-steps {
+            background-color: #f9f9f9;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        code {
+            background-color: #f0f0f0;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ddd;
+            margin: 10px 0;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>How to Test the Colormap Creator</h1>
+    
+    <div class="section">
+        <h2>Quick Test Guide</h2>
+        <div class="test-steps">
+            <h3>Basic Testing</h3>
+            <ol>
+                <li>Open <a href="index.html">index.html</a> in your browser</li>
+                <li>Open your browser's developer console (F12 or Ctrl+Shift+J or right-click > Inspect > Console)</li>
+                <li>Try adding color stops by clicking on the colormap area</li>
+                <li>Check the console for any error messages</li>
+            </ol>
+
+            <h3>Simple Test Page</h3>
+            <p>If the main application has issues, try the <a href="test.html">simplified test page</a> to see if the basic functionality works.</p>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Fixing Common Issues</h2>
+        
+        <h3>1. Color stops not appearing</h3>
+        <p>This might be due to:</p>
+        <ul>
+            <li>JSColor library not loading properly</li>
+            <li>Issues with the rendering process</li>
+        </ul>
+        <p>Check the console for any error messages related to jscolor or canvas rendering.</p>
+        
+        <h3>2. Color sliders not draggable</h3>
+        <p>Common reasons:</p>
+        <ul>
+            <li>HTML5 drag and drop API issues in your browser</li>
+            <li>Event listener problems</li>
+        </ul>
+        <p>The application now includes both HTML5 drag-and-drop and a manual drag implementation for better compatibility.</p>
+        
+        <h3>3. Browser Compatibility</h3>
+        <p>The application works best in these browsers:</p>
+        <ul>
+            <li>Chrome (latest versions)</li>
+            <li>Firefox (latest versions)</li>
+            <li>Edge (Chromium-based versions)</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>Files to Check</h2>
+        <ul>
+            <li><strong>index.html</strong> - Main application</li>
+            <li><strong>test.html</strong> - Simplified test page</li>
+            <li><strong>js/colormap.js</strong> - Core colormap functionality</li>
+            <li><strong>js/app.js</strong> - User interface logic</li>
+            <li><strong>css/style.css</strong> - Styling</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>Need More Help?</h2>
+        <p>If you continue experiencing issues:</p>
+        <ol>
+            <li>Try accessing the application from another browser</li>
+            <li>Check for any JavaScript errors in the console</li>
+            <li>Verify that all required files are in the correct directory structure</li>
+            <li>Contact support with details about your issue and any error messages you see</li>
+        </ol>
+    </div>
+
+    <a href="index.html" class="button">Go to Colormap Creator</a>
+</body>
+</html> 
