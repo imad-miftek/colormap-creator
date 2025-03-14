@@ -2,6 +2,12 @@
 
 A web-based tool for creating and editing colormaps, designed for use as an internal company tool. This application allows you to create custom colormaps with precise control over color stops and positions, and export them in formats compatible with Python visualization libraries.
 
+## Live Demo
+
+🎉 **Try it now:** [https://imad-miftek.github.io/colormap-creator/](https://imad-miftek.github.io/colormap-creator/)
+
+![Colormap Creator Screenshot](https://user-images.githubusercontent.com/YOUR-USERNAME/colormap-creator/main/screenshot.png)
+
 ## Features
 
 - Interactive colormap editor with drag-and-drop color stops
@@ -14,10 +20,6 @@ A web-based tool for creating and editing colormaps, designed for use as an inte
 - Mobile-responsive design
 
 ## Usage
-
-### Accessing the Tool
-
-This tool is hosted on GitHub Pages at: [https://isheikh8492.github.io/colormap-creator/](https://isheikh8492.github.io/colormap-creator/)
 
 ### Creating a Colormap
 
@@ -36,6 +38,14 @@ This tool is hosted on GitHub Pages at: [https://isheikh8492.github.io/colormap-
 
 - Switch between "Color Stops" and "512 RGB Values" tabs to view detailed information
 - Each table shows the position, color, and RGB values
+
+## Troubleshooting
+
+If you encounter any issues:
+
+1. Check the browser console (F12) for error messages
+2. Try the simplified test page: [Test Page](https://imad-miftek.github.io/colormap-creator/test.html)
+3. See the troubleshooting guide: [How to Test](https://imad-miftek.github.io/colormap-creator/how-to-test.html)
 
 ## Technical Information
 
@@ -64,6 +74,8 @@ When exporting as Python code, the application generates code compatible with Pl
 ```
 colormap-creator/
 ├── index.html          # Main HTML file
+├── test.html           # Simplified test page
+├── how-to-test.html    # Testing guide
 ├── css/
 │   └── style.css       # Styles for the application
 ├── js/
@@ -76,18 +88,10 @@ colormap-creator/
 
 To run the application locally:
 
-1. Clone the repository
+1. Clone the repository: `git clone https://github.com/imad-miftek/colormap-creator.git`
 2. Open `index.html` in a web browser
 
 No build steps or server required - it's a pure HTML/CSS/JS application.
-
-## Deployment
-
-This application is designed to be deployed on GitHub Pages:
-
-1. Push the code to a GitHub repository
-2. Enable GitHub Pages in the repository settings
-3. Set the source to the branch containing your code
 
 ## License
 
@@ -95,4 +99,4 @@ Internal company use only. Not licensed for public distribution.
 
 ## Support
 
-For issues or feature requests, please contact the development team. 
+For issues or feature requests, please contact the development team or [create an issue](https://github.com/imad-miftek/colormap-creator/issues). 
