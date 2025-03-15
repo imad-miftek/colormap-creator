@@ -403,16 +403,6 @@ class ColormapMakerApp(QMainWindow):
             stops = colormap.colorStops()
             existing_positions = [stop.pos for stop in stops]
             
-            # Find closest position
-            if any(abs(pos - position) < 0.001 for pos in existing_positions):
-                QMessageBox.warning(
-                    self, 
-                    "Position Occupied",
-                    f"A color stop already exists very close to position {position:.4f}.\n"
-                    f"Please choose a different position."
-                )
-                return
-            
             if color_method.currentText() == "Choose Color":
                 # Let user pick a color
                 color = QColorDialog.getColor(
