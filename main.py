@@ -3,7 +3,7 @@ import numpy as np
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, 
                               QTableWidget, QTableWidgetItem, QPushButton, QLabel, 
                               QFileDialog, QSplitter, QTabWidget, QColorDialog, QDialog, QFormLayout, QDoubleSpinBox, 
-                              QDialogButtonBox, QComboBox, QMessageBox)
+                              QDialogButtonBox, QComboBox, QMessageBox, QSpinBox)
 from PySide6.QtGui import QColor, QAction
 from PySide6.QtCore import Qt
 from plotpy.widgets.colormap.widget import ColorMapWidget, EditableColormap
@@ -29,6 +29,9 @@ class ColormapMakerApp(QMainWindow):
         self.setWindowTitle("Colormap Maker")
         self.setGeometry(100, 100, 1000, 700)
         
+        # Default number of colors
+        self.num_colors = 512
+        
         # Create central widget and layout
         central_widget = QWidget()
         main_layout = QVBoxLayout(central_widget)
@@ -50,13 +53,15 @@ class ColormapMakerApp(QMainWindow):
         self.save_button = QPushButton("Save Colormap")
         self.load_button = QPushButton("Load Colormap")
         self.add_stop_button = QPushButton("Add Color Stop")  # Add this line
+        self.config_button = QPushButton("Configure Colors")
         button_layout.addWidget(self.save_button)
         button_layout.addWidget(self.load_button)
         button_layout.addWidget(self.add_stop_button)  # Add this line
+        button_layout.addWidget(self.config_button)
         top_layout.addLayout(button_layout)
         
         # Bottom area: Tabs for data views
-        bottom_widget = QTabWidget()
+        self.bottom_widget = QTabWidget()
         
         # Tab 1: Color stops info
         self.stops_table = QTableWidget(0, 4)
@@ -66,12 +71,13 @@ class ColormapMakerApp(QMainWindow):
         self.rgb_preview = QTableWidget(0, 4)
         self.rgb_preview.setHorizontalHeaderLabels(["Index", "Position", "Hex Color", "RGB"])
         
-        bottom_widget.addTab(self.stops_table, "Color Stops")
-        bottom_widget.addTab(self.rgb_preview, "512 RGB Values")
+        # Replace the static tab text with a dynamic one that uses self.num_colors
+        self.bottom_widget.addTab(self.stops_table, "Color Stops")
+        self.rgb_preview_tab = self.bottom_widget.addTab(self.rgb_preview, f"{self.num_colors} RGB Values")
         
         # Add widgets to splitter
         splitter.addWidget(top_widget)
-        splitter.addWidget(bottom_widget)
+        splitter.addWidget(self.bottom_widget)
         splitter.setSizes([200, 500])  # Set initial sizes
         
         # Add splitter to main layout
@@ -87,6 +93,7 @@ class ColormapMakerApp(QMainWindow):
         self.save_button.clicked.connect(self.save_colormap)
         self.load_button.clicked.connect(self.load_colormap)
         self.add_stop_button.clicked.connect(self.add_new_color_stop)  # Add this line
+        self.config_button.clicked.connect(self.configure_colors)
         
         # Add double-click event to the stops table to edit colors
         self.stops_table.cellClicked.connect(self.edit_color)
@@ -133,16 +140,15 @@ class ColormapMakerApp(QMainWindow):
         
         self.stops_table.resizeColumnsToContents()
         
-        # Update full RGB preview table (512 values)
+        # Update full RGB preview table with the configurable number of colors
         qwt_interval = QwtInterval(0, 1)
         rgb_values = []
         
-        # Get 512 RGB values
-        num_colors = 512
-        self.rgb_preview.setRowCount(num_colors)
+        # Use self.num_colors instead of hardcoded 512
+        self.rgb_preview.setRowCount(self.num_colors)
         
-        for i in range(num_colors):
-            pos = i / (num_colors - 1)
+        for i in range(self.num_colors):
+            pos = i / (self.num_colors - 1)  # Changed from 511 to (self.num_colors - 1)
             rgb_int = colormap.rgb(qwt_interval, pos)
             color = QColor(rgb_int)
             hex_color = color.name()
@@ -214,37 +220,83 @@ class ColormapMakerApp(QMainWindow):
             f.write("\n    return colormap\n\n")
             
             # Write 512 RGB values and their positions
-            f.write("# Full 512 RGB values for the colormap\n")
-            f.write("def get_rgb_array():\n")
-            f.write("    return np.array([\n")
+            f.write("# Full RGB values for the colormap\n")
+            f.write(f"# Number of colors: {self.num_colors}\n")
+            f.write("def get_rgb_array(num_colors=None):\n")
+            f.write("    if num_colors is None:\n")
+            f.write(f"        num_colors = {self.num_colors}\n")
+            f.write("    result = []\n")
+            f.write("    for i in range(num_colors):\n")
+            f.write("        pos = i / (num_colors - 1)\n")
+            f.write("        # Get color from the stops by interpolation\n")
             
-            # Generate 512 colors
+            # This is one approach - write the function to interpolate colors
+            f.write("        result.append(interpolate_color(pos))\n")
+            f.write("    return np.array(result)\n\n")
+            
+            # Write the interpolation function
+            f.write("def interpolate_color(pos):\n")
+            f.write("    # Find the two stops to interpolate between\n")
+            f.write("    for i in range(len(color_positions)-1):\n")
+            f.write("        if color_positions[i] <= pos <= color_positions[i+1]:\n")
+            f.write("            # Calculate interpolation factor\n")
+            f.write("            factor = (pos - color_positions[i]) / (color_positions[i+1] - color_positions[i])\n")
+            f.write("            \n")
+            f.write("            # Get RGB values of the two stops\n")
+            f.write("            c1 = rgb_colors[i]\n")
+            f.write("            c2 = rgb_colors[i+1]\n")
+            f.write("            \n")
+            f.write("            # Interpolate RGB values\n")
+            f.write("            r = int((1-factor) * c1[0] * 255 + factor * c2[0] * 255)\n")
+            f.write("            g = int((1-factor) * c1[1] * 255 + factor * c2[1] * 255)\n")
+            f.write("            b = int((1-factor) * c1[2] * 255 + factor * c2[2] * 255)\n")
+            f.write("            \n")
+            f.write("            return [r, g, b]\n")
+            f.write("    \n")
+            f.write("    # If pos is outside the range, return the closest stop\n")
+            f.write("    if pos <= color_positions[0]:\n")
+            f.write("        return [int(rgb_colors[0][0] * 255), int(rgb_colors[0][1] * 255), int(rgb_colors[0][2] * 255)]\n")
+            f.write("    else:\n")
+            f.write("        last = len(rgb_colors) - 1\n")
+            f.write("        return [int(rgb_colors[last][0] * 255), int(rgb_colors[last][1] * 255), int(rgb_colors[last][2] * 255)]\n\n")
+            
+            # Also generate and write the actual colors for the default value
+            f.write("# Pre-generated RGB values for convenience\n")
+            f.write(f"_rgb_array_{self.num_colors} = [\n")
+            
+            # Generate colors
             qwt_interval = QwtInterval(0, 1)
             rgb_values = []
             positions = []
             
-            for i in range(512):
-                pos = i / 511  # Range from 0.0 to 1.0
+            for i in range(self.num_colors):
+                pos = i / (self.num_colors - 1)
                 positions.append(pos)
                 rgb_int = colormap.rgb(qwt_interval, pos)
                 color = QColor(rgb_int)
-                f.write(f"        [{color.red()}, {color.green()}, {color.blue()}],\n")
+                f.write(f"    [{color.red()}, {color.green()}, {color.blue()}],\n")
                 rgb_values.append([color.red(), color.green(), color.blue()])
             
-            f.write("    ])\n\n")
+            f.write("]\n\n")
             
-            # Write 512 position values
-            f.write("# 512 position values corresponding to the RGB colors (0.0 to 1.0)\n")
-            f.write("def get_positions():\n")
-            f.write("    return np.array([\n")
+            # Write position values
+            f.write("# Position values corresponding to the RGB colors (0.0 to 1.0)\n")
+            f.write("def get_positions(num_colors=None):\n")
+            f.write("    if num_colors is None:\n")
+            f.write(f"        num_colors = {self.num_colors}\n")
+            f.write("    return np.linspace(0.0, 1.0, num_colors)\n\n")
+            
+            # Also include the pre-generated positions for convenience
+            f.write("# Pre-generated position values\n")
+            f.write(f"_positions_{self.num_colors} = [\n")
             
             # Write in groups of 10 for readability
-            for i in range(0, 512, 10):
+            for i in range(0, len(positions), 10):
                 group = positions[i:i+10]
                 line = ", ".join(f"{pos:.6f}" for pos in group)
-                f.write(f"        {line},\n")
+                f.write(f"    {line},\n")
             
-            f.write("    ])\n\n")
+            f.write("]\n\n")
             
             # Add example usage
             f.write("# Example usage\n")
@@ -253,8 +305,13 @@ class ColormapMakerApp(QMainWindow):
             f.write("    # Use with PlotPy: item.set_color_map(colormap)\n")
             f.write("    \n")
             f.write("    # Get the RGB array and positions for custom usage\n")
-            f.write("    rgb_values = get_rgb_array()\n")
+            f.write(f"    rgb_values = get_rgb_array()  # Default {self.num_colors} colors\n")
             f.write("    positions = get_positions()\n")
+            f.write("    \n")
+            f.write("    # Or specify a different number of colors\n")
+            f.write("    rgb_values_256 = get_rgb_array(256)\n")
+            f.write("    positions_256 = get_positions(256)\n")
+            f.write("    \n")
             f.write("    # These can be used for custom color interpolation\n")
             f.write("    # Each rgb_values[i] corresponds to positions[i]\n")
     
@@ -421,6 +478,36 @@ class ColormapMakerApp(QMainWindow):
             
             # Add the color stop
             self.colormap_widget.add_handle_at_relative_pos(position, color)
+            self.update_tables()
+
+    def configure_colors(self):
+        """Configure the number of colors to generate"""
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Configure Colors")
+        layout = QFormLayout(dialog)
+        
+        # Spinner for number of colors
+        color_spinner = QSpinBox()
+        color_spinner.setRange(16, 4096)  # Reasonable range
+        color_spinner.setValue(self.num_colors)
+        color_spinner.setSingleStep(16)
+        layout.addRow("Number of colors to generate:", color_spinner)
+        
+        # Button box
+        button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        button_box.accepted.connect(dialog.accept)
+        button_box.rejected.connect(dialog.reject)
+        layout.addRow(button_box)
+        
+        # Show dialog
+        if dialog.exec() == QDialog.Accepted:
+            # Update the number of colors
+            self.num_colors = color_spinner.value()
+            
+            # Update the tab text to reflect the new number of colors
+            self.bottom_widget.setTabText(self.rgb_preview_tab, f"{self.num_colors} RGB Values")
+            
+            # Update the preview table
             self.update_tables()
 
 if __name__ == "__main__":
