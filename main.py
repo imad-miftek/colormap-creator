@@ -89,7 +89,7 @@ class ColormapMakerApp(QMainWindow):
         self.add_stop_button.clicked.connect(self.add_new_color_stop)  # Add this line
         
         # Add double-click event to the stops table to edit colors
-        self.stops_table.cellDoubleClicked.connect(self.edit_color)
+        self.stops_table.cellClicked.connect(self.edit_color)
         
         # Also add a right-click context menu for the colormap widget
         # to edit colors of existing handles
